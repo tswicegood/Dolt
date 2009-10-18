@@ -106,7 +106,6 @@ class TestOfRemoteMapper(unittest.TestCase):
     def test_request_method_based_on_call(self):
         random_url = "posted-call-%d" % random.randint(1, 10)
         rm = testable_remote_mapper()
-        rm._posts = [[random_url]]
         rm._http.request("/%s" % random_url, "POST")
         replay_all(rm._http)
 
