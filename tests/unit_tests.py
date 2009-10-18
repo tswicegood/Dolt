@@ -145,6 +145,10 @@ class TestOfRemoteMapper(unittest.TestCase):
         rm.foo.DELETE()
         verify_all(rm._http)
 
+    def test_instanciates_httplib2_object_if_not_provided(self):
+        rm = RemoteMapper()
+        self.assert_(isinstance(rm._http, Http))
+
 if __name__ == '__main__':
     unittest.main()
 

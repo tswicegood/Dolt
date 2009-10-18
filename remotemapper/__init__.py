@@ -1,3 +1,4 @@
+import httplib2
 import urllib
 
 class RemoteMapper(object):
@@ -7,7 +8,7 @@ class RemoteMapper(object):
         self._attribute_stack = []
         self._method = "GET"
         self._posts = []
-        self._http = http
+        self._http = http or httplib2.Http()
         self._params = {}
         self._api_url = ""
         self._url_template = '%(domain)s/%(generated_url)s'
