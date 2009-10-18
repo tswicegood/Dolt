@@ -122,6 +122,30 @@ class TestOfRemoteMapper(unittest.TestCase):
         rm.foo.post()
         verify_all(rm._http)
 
+    def test_supports_put_method(self):
+        rm = testable_remote_mapper()
+        rm._http.request("/foo", "PUT")
+        replay_all(rm._http)
+
+        rm.foo.PUT()
+        verify_all(rm._http)
+
+    def test_supports_head_method(self):
+        rm = testable_remote_mapper()
+        rm._http.request("/foo", "HEAD")
+        replay_all(rm._http)
+
+        rm.foo.HEAD()
+        verify_all(rm._http)
+
+    def test_supports_delete_method(self):
+        rm = testable_remote_mapper()
+        rm._http.request("/foo", "DELETE")
+        replay_all(rm._http)
+
+        rm.foo.DELETE()
+        verify_all(rm._http)
+
 if __name__ == '__main__':
     unittest.main()
 

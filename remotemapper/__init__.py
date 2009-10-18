@@ -1,6 +1,8 @@
 import urllib
 
 class RemoteMapper(object):
+    supported_methods = ("GET", "POST", "PUT", "HEAD", "DELETE",)
+
     def __init__(self, http=None):
         self._attribute_stack = []
         self._method = "GET"
@@ -17,8 +19,8 @@ class RemoteMapper(object):
         self._attribute_stack = []
 
     def __getattr__(self, name):
-        if name == "POST":
-            self._method = "POST"
+        if name in self.__class__.supported_methods:
+            self._method = name
         else:
             self._attribute_stack.append(name)
         return self
