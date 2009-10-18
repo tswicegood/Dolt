@@ -17,7 +17,7 @@ class RemoteMapper(object):
         self._attribute_stack = []
 
     def __getattr__(self, name):
-        if name.lower() == "post":
+        if name == "POST":
             self._method = "POST"
         else:
             self._attribute_stack.append(name)

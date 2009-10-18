@@ -110,8 +110,16 @@ class TestOfRemoteMapper(unittest.TestCase):
         rm._http.request("/%s" % random_url, "POST")
         replay_all(rm._http)
 
-        getattr(rm, random_url).post()
+        getattr(rm, random_url).POST()
 
+        verify_all(rm._http)
+
+    def test_request_methods_are_all_uppercase(self):
+        rm = testable_remote_mapper()
+        rm._http.request("/foo/post", "GET")
+        replay_all(rm._http)
+
+        rm.foo.post()
         verify_all(rm._http)
 
 if __name__ == '__main__':
