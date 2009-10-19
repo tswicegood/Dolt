@@ -53,6 +53,14 @@ Notice that all you need to add to it is the method you want to call.  If
 you're feeling very Pythonic and want to be explicit in every call, you can add
 `.GET` as the final method call, though that's always assumed.
 
+Sometimes having that `POST` or `PUT` at the end seems weird.  You can stick
+the method wherever you want in the call string of properties, it just has to
+be in all uppercase.  For example, this works just the same as the previous
+code:
+
+    twitter = Twitter()
+    twitter.POST.statuses.update(status="Hello from Dolt!")
+
 This works for other HTTP methods as well, such as `PUT`, `DELETE`, and `HEAD`.
 
 
