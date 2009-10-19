@@ -145,6 +145,19 @@ class TestOfDolt(unittest.TestCase):
         dolt.foo.DELETE()
         verify_all(dolt._http)
 
+    def test_supports_various_methods_as_attributes_as_well(self):
+        dolt = testable_dolt()
+
+        methods = ("GET", "POST", "PUT", "DELETE", "HEAD",)
+        for method in methods:
+            dolt._http.request("/foo", method).AndReturn(({}, "{}"))
+        replay_all(dolt._http)
+
+        for method in methods:
+            getattr(dolt, method).foo()
+
+        verify_all(dolt._http)
+
     def test_instanciates_httplib2_object_if_not_provided(self):
         dolt = Dolt()
         self.assert_(isinstance(dolt._http, Http))
