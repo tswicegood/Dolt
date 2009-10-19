@@ -159,6 +159,12 @@ class TestOfDolt(unittest.TestCase):
 
         verify_all(dolt._http)
 
+    def test_takes_an_http_keyword_arg_and_sets_http_to_it(self):
+        random_http = "http-%s" % random.randint(1, 10)
+        dolt = Dolt(http=random_http)
+        self.assertEqual(dolt._http, random_http)
+
+
 if __name__ == '__main__':
     unittest.main()
 
