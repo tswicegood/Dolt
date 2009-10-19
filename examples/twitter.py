@@ -1,3 +1,4 @@
+import getpass
 import os, sys
 sys.path[0:0] = os.path.join(os.path.dirname(__file__), "..")
 
@@ -13,7 +14,7 @@ class Twitter(Dolt):
 if __name__ == "__main__":
     http = Http()
     username = raw_input("Twitter Username: ")
-    password = raw_input("Twitter Password: ")
+    password = getpass.getpass("Twitter Password: ")
     http.add_credentials(username, password)
     twitter = Twitter(http=http)
     user = twitter.users.show("tswicegood")
