@@ -1,7 +1,7 @@
 import httplib2
 import urllib
 
-class RemoteMapper(object):
+class Dolt(object):
 
     def __init__(self, http=None):
         self._supported_methods = ("GET", "POST", "PUT", "HEAD", "DELETE",)
