@@ -1,4 +1,5 @@
 import httplib2
+import simplejson
 import urllib
 
 class Dolt(object):
@@ -16,8 +17,9 @@ class Dolt(object):
     def __call__(self, *args, **kwargs):
         self._attribute_stack += [str(a) for a in args]
         self._params = kwargs
-        self._http.request(self.get_url(), self._method)
+        response, data = self._http.request(self.get_url(), self._method)
         self._attribute_stack = []
+        return simplejson.loads(data)
 
     def __getattr__(self, name):
         if name in self._supported_methods:
