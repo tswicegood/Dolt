@@ -68,6 +68,17 @@ which allows you to pass in an Http object with credentials.  For example:
     some_api = Dolt(http=http)
 
 
+License
+-------
+This software is dual licensed under the [GPLv3][gplv3] and [CDDL][cddl]
+licenses.  The CDDL is less viral than the GPLv3, but is incompatible with the
+GPL, thus the dual license.
+
+Of course, I'm not a lawyer, so if you have questions about the licensing and
+how it effects your use, please consult a professional lawyer, not some random
+README file.
+
+
 Want to help?
 -------------
 This is open source, so feel free to grab any of these tasks and contribute:
@@ -80,3 +91,5 @@ This is open source, so feel free to grab any of these tasks and contribute:
 [python-twitter]: http://code.google.com/p/python-twitter/
 [api-docs]: http://apiwiki.twitter.com/Twitter-API-Documentation
 [httplib2]: http://code.google.com/p/httplib2/
+[gplv3]: http://www.gnu.org/licenses/gpl.html
+[cddl]: http://www.sun.com/cddl/cddl.html
