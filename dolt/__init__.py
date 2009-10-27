@@ -13,6 +13,7 @@ class Dolt(object):
         self._params = {}
         self._api_url = ""
         self._url_template = '%(domain)s/%(generated_url)s'
+        self._stack_collapser = "/".join
 
     def __call__(self, *args, **kwargs):
         self._attribute_stack += [str(a) for a in args]
@@ -31,7 +32,7 @@ class Dolt(object):
     def get_url(self):
         url = self._url_template % {
             "domain": self._api_url,
-            "generated_url" : "/".join(self._attribute_stack)
+            "generated_url" : self._stack_collapser(self._attribute_stack),
         }
         if len(self._params):
             url += '?%s' % urllib.urlencode(self._params)

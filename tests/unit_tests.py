@@ -177,6 +177,18 @@ class TestOfDolt(unittest.TestCase):
         dolt = Dolt(http=random_http)
         self.assertEqual(dolt._http, random_http)
 
+    def test_uses_collapse_stack_to_join_string_for_request(self):
+        random_separator = "-%d-" % random.randint(1, 10)
+        def custom_collapser(stack):
+            return random_separator.join(stack)
+
+        expected_url = "/foo%sbar" % random_separator
+
+        dolt = testable_dolt()
+        dolt._stack_collapser = custom_collapser
+
+        self.assertEqual(dolt.foo.bar.get_url(), expected_url)
+
 
 if __name__ == '__main__':
     unittest.main()
