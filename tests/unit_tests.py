@@ -204,6 +204,16 @@ class TestOfDolt(unittest.TestCase):
 
         verify_all(dolt._http, dolt._handle_response)
 
+    def test_has_a_template_for_params(self):
+        dolt = testable_dolt()
+        dolt._http.request("/foo\\foo=bar", "GET").AndReturn(({}, simplejson.dumps({"foo": "bar"})))
+        replay_all(dolt._http)
+
+        dolt._params_template = "\\%s"
+        dolt.foo(foo="bar")
+
+        verify_all(dolt._http)
+
 
 
 if __name__ == '__main__':
