@@ -18,7 +18,6 @@ class Flickr(Dolt):
 
     def get_url(self):
         url = super(self.__class__, self).get_url()
-        print url + "&api_key=%s" % self._api_key
         return url + "&api_key=%s" % self._api_key
 
     def _handle_response(self, response, data):
