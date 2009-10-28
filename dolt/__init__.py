@@ -20,6 +20,9 @@ class Dolt(object):
         self._params = kwargs
         response, data = self._http.request(self.get_url(), self._method)
         self._attribute_stack = []
+        return self._handle_response(response, data)
+
+    def _handle_response(self, response, data):
         return simplejson.loads(data)
 
     def __getattr__(self, name):

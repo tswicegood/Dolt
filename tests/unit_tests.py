@@ -19,6 +19,9 @@ def replay_all(*args):
     [mox.Replay(arg) for arg in args]
 
 class TestOfDolt(unittest.TestCase):
+    def setUp(self):
+        self.mox = mox.Mox()
+
     def test_attributes_return_main_object(self):
         dolt = testable_dolt()
 
@@ -188,6 +191,19 @@ class TestOfDolt(unittest.TestCase):
         dolt._stack_collapser = custom_collapser
 
         self.assertEqual(dolt.foo.bar.get_url(), expected_url)
+
+    def test_returns_selfs_handle_response_after_call(self):
+        dolt = testable_dolt()
+        self.mox.StubOutWithMock(dolt, "_handle_response")
+        dolt._handle_response({}, simplejson.dumps({"foo":"bar"}))
+
+        dolt._http.request("/foo", "GET").AndReturn(({}, simplejson.dumps({"foo":"bar"})))
+        replay_all(dolt._http, dolt._handle_response)
+
+        dolt.foo()
+
+        verify_all(dolt._http, dolt._handle_response)
+
 
 
 if __name__ == '__main__':
