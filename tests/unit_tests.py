@@ -2,6 +2,7 @@ import sys, os, random, simplejson
 sys.path[0:0] = os.path.join(os.path.dirname(__file__), '..')
 import unittest, mox
 from dolt import Dolt
+from dolt.apis.twitter import Twitter
 from httplib2 import Http
 
 def random_attribute():
@@ -17,6 +18,24 @@ def verify_all(*args):
 
 def replay_all(*args):
     [mox.Replay(arg) for arg in args]
+    
+class TestOfTwitterAPI(unittest.TestCase):
+    def test_subclasses_dolt(self):
+        twitter = Twitter()
+        self.assert_(isinstance(twitter, Dolt))
+    
+    def test_contains_proper_api_url(self):
+        twitter = Twitter()
+        self.assertEqual(twitter._api_url, "https://twitter.com")
+    
+    def test_contains_proper_url_template(self):
+        twitter = Twitter()
+        self.assertEqual(twitter._url_template, '%(domain)s/%(generated_url)s.json')
+        
+    def test_http_can_be_passed_in(self):
+        http = "http-%s" % random.randint(1, 10)
+        twitter = Twitter(http=http)
+        self.assertEqual(twitter._http, http)
 
 class TestOfDolt(unittest.TestCase):
     def setUp(self):
