@@ -4,9 +4,9 @@ class Bitly(Dolt):
     def __init__(self, *args, **kwargs):
         super(Bitly, self).__init__(*args, **kwargs)
         self._defaults = {
-            'username':None,
-            'api_key':None,
-            'api_version':'2.0.1',
+            'login':None,
+            'apiKey':None,
+            'apiVersion':'2.0.1',
             'format':'json',
         }
         self._defaults.update(kwargs)
