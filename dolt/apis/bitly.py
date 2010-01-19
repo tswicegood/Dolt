@@ -16,4 +16,4 @@ class Bitly(Dolt):
     def __call__(self, *args, **kwargs):
         updated_kwargs = kwargs
         updated_kwargs.update(self._defaults)
-        super(Bitly, self).__call__(*args, **updated_kwargs)
+        return super(Bitly, self).__call__(*args, **updated_kwargs)
