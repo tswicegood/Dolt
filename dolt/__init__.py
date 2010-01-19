@@ -19,7 +19,11 @@ class Dolt(object):
     def __call__(self, *args, **kwargs):
         self._attribute_stack += [str(a) for a in args]
         self._params = kwargs
-        response, data = self._http.request(self.get_url(), self._method)
+        body = None
+        if self._method == 'POST':
+            body = (self._params_template % urllib.urlencode(self._params))[1:]
+
+        response, data = self._http.request(self.get_url(), self._method, body=body)
         self._attribute_stack = []
         return self._handle_response(response, data)
 
@@ -38,7 +42,7 @@ class Dolt(object):
             "domain": self._api_url,
             "generated_url" : self._stack_collapser(self._attribute_stack),
         }
-        if len(self._params):
+        if len(self._params) and self._method != 'POST':
             url += self._params_template % urllib.urlencode(self._params)
         return url
 
