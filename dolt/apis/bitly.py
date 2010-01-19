@@ -1,7 +1,7 @@
 from dolt import Dolt
 
 class Bitly(Dolt):
-    def __init__(self, http, **kwargs):
+    def __init__(self, http=None, **kwargs):
         super(Bitly, self).__init__(http)
         self._defaults = {
             'login':None,
