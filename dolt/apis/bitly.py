@@ -14,5 +14,6 @@ class Bitly(Dolt):
         self._url_template = '%(domain)s/%(generated_url)s.json'
 
     def __call__(self, *args, **kwargs):
-        updated_kwargs = kwargs.update(self._defaults)
+        updated_kwargs = kwargs
+        updated_kwargs.update(self._defaults)
         super(Bitly, self).__call__(*args, **updated_kwargs)
