@@ -51,7 +51,7 @@ class TestOfDolt(unittest.TestCase):
         dolt = testable_dolt()
         attr = random_attribute()
         expected_url = "/%s/%s" % (attr, attr)
-        dolt._http.request(expected_url, "GET").AndReturn(({}, "{}"))
+        dolt._http.request(expected_url, "GET", body=None).AndReturn(({}, "{}"))
         replay_all(dolt._http)
 
         getattr(getattr(dolt, attr), attr)()
@@ -61,7 +61,7 @@ class TestOfDolt(unittest.TestCase):
         random_url = "http://api.%s.com" % random_attribute()
         dolt = testable_dolt()
         dolt._api_url = random_url
-        dolt._http.request("%s/foo" % random_url, "GET").AndReturn(({}, "{}"))
+        dolt._http.request("%s/foo" % random_url, "GET", body=None).AndReturn(({}, "{}"))
         replay_all(dolt._http)
         dolt.foo()
         verify_all(dolt._http)
@@ -69,7 +69,7 @@ class TestOfDolt(unittest.TestCase):
     def test_uses_template_for_formatting_url(self):
         random_protocol = "http-%d" % random.randint(1, 10)
         dolt = testable_dolt()
-        dolt._http.request("%s://example.com/foo" % random_protocol, "GET").AndReturn(({}, "{}"))
+        dolt._http.request("%s://example.com/foo" % random_protocol, "GET", body=None).AndReturn(({}, "{}"))
 
         dolt._url_template = "%s://example.com/%%(generated_url)s" % random_protocol
         replay_all(dolt._http)
@@ -82,7 +82,7 @@ class TestOfDolt(unittest.TestCase):
         random_value = random.randint(1, 10)
         random_value2 = random.randint(1, 10)
         dolt = testable_dolt()
-        dolt._http.request("/foo/%d/%d" % (random_value, random_value2), "GET").AndReturn(({}, "{}"))
+        dolt._http.request("/foo/%d/%d" % (random_value, random_value2), "GET", body=None).AndReturn(({}, "{}"))
         replay_all(dolt._http)
 
         dolt.foo(random_value, random_value2)
@@ -93,7 +93,7 @@ class TestOfDolt(unittest.TestCase):
         random_value = random.randint(1, 10)
         random_value2 = random.randint(1, 10)
         dolt = testable_dolt()
-        dolt._http.request("/foo?a=%d&b=%d" % (random_value, random_value2), "GET").AndReturn(({}, "{}"))
+        dolt._http.request("/foo?a=%d&b=%d" % (random_value, random_value2), "GET", body=None).AndReturn(({}, "{}"))
         replay_all(dolt._http)
 
         dolt.foo(a=random_value, b=random_value2)
@@ -101,8 +101,8 @@ class TestOfDolt(unittest.TestCase):
 
     def test_urls_reset_after_final_call(self):
         dolt = testable_dolt()
-        dolt._http.request("/foo", "GET").AndReturn(({}, "{}"))
-        dolt._http.request("/bar", "GET").AndReturn(({}, "{}"))
+        dolt._http.request("/foo", "GET", body=None).AndReturn(({}, "{}"))
+        dolt._http.request("/bar", "GET", body=None).AndReturn(({}, "{}"))
         replay_all(dolt._http)
 
         dolt.foo()
@@ -115,8 +115,8 @@ class TestOfDolt(unittest.TestCase):
         two = random.randint(11, 20)
 
         dolt = testable_dolt()
-        dolt._http.request("/foo?a=%d&b=%d" % (one, two), "GET").AndReturn(({}, "{}"))
-        dolt._http.request("/foo?a=%d&b=%d" % (two, one), "GET").AndReturn(({}, "{}"))
+        dolt._http.request("/foo?a=%d&b=%d" % (one, two), "GET", body=None).AndReturn(({}, "{}"))
+        dolt._http.request("/foo?a=%d&b=%d" % (two, one), "GET", body=None).AndReturn(({}, "{}"))
 
         replay_all(dolt._http)
 
@@ -128,7 +128,7 @@ class TestOfDolt(unittest.TestCase):
     def test_request_method_based_on_call(self):
         random_url = "posted-call-%d" % random.randint(1, 10)
         dolt = testable_dolt()
-        dolt._http.request("/%s" % random_url, "POST").AndReturn(({}, "{}"))
+        dolt._http.request("/%s" % random_url, "POST", body='').AndReturn(({}, "{}"))
         replay_all(dolt._http)
 
         getattr(dolt, random_url).POST()
@@ -137,7 +137,7 @@ class TestOfDolt(unittest.TestCase):
 
     def test_request_methods_are_all_uppercase(self):
         dolt = testable_dolt()
-        dolt._http.request("/foo/post", "GET").AndReturn(({}, "{}"))
+        dolt._http.request("/foo/post", "GET", body=None).AndReturn(({}, "{}"))
         replay_all(dolt._http)
 
         dolt.foo.post()
@@ -145,7 +145,7 @@ class TestOfDolt(unittest.TestCase):
 
     def test_supports_put_method(self):
         dolt = testable_dolt()
-        dolt._http.request("/foo", "PUT").AndReturn(({}, "{}"))
+        dolt._http.request("/foo", "PUT", body=None).AndReturn(({}, "{}"))
         replay_all(dolt._http)
 
         dolt.foo.PUT()
@@ -153,7 +153,7 @@ class TestOfDolt(unittest.TestCase):
 
     def test_supports_head_method(self):
         dolt = testable_dolt()
-        dolt._http.request("/foo", "HEAD").AndReturn(({}, "{}"))
+        dolt._http.request("/foo", "HEAD", body=None).AndReturn(({}, "{}"))
         replay_all(dolt._http)
 
         dolt.foo.HEAD()
@@ -161,7 +161,7 @@ class TestOfDolt(unittest.TestCase):
 
     def test_supports_delete_method(self):
         dolt = testable_dolt()
-        dolt._http.request("/foo", "DELETE").AndReturn(({}, "{}"))
+        dolt._http.request("/foo", "DELETE", body=None).AndReturn(({}, "{}"))
         replay_all(dolt._http)
 
         dolt.foo.DELETE()
@@ -170,13 +170,17 @@ class TestOfDolt(unittest.TestCase):
     def test_supports_various_methods_as_attributes_as_well(self):
         dolt = testable_dolt()
 
-        methods = ("GET", "POST", "PUT", "DELETE", "HEAD",)
-        for method in methods:
-            dolt._http.request("/foo", method).AndReturn(({}, "{}"))
+        methods = (("GET", {"body": None}),
+                   ("POST", {"body": ''}),
+                   ("PUT", {"body": None}),
+                   ("DELETE", {"body": None}),
+                   ("HEAD", {"body": None}),)
+        for args in methods:
+            dolt._http.request("/foo", args[0], **args[1] ).AndReturn(({}, "{}"))
         replay_all(dolt._http)
 
-        for method in methods:
-            getattr(dolt, method).foo()
+        for args in methods:
+            getattr(dolt, args[0]).foo()
 
         verify_all(dolt._http)
 
@@ -187,7 +191,7 @@ class TestOfDolt(unittest.TestCase):
     def test_returns_parsed_json_response_from_request(self):
         dolt = testable_dolt()
         random_return = {"random": random.randint(1, 10)}
-        dolt._http.request("/foo", "GET").AndReturn(({}, simplejson.dumps(random_return)))
+        dolt._http.request("/foo", "GET", body=None).AndReturn(({}, simplejson.dumps(random_return)))
         replay_all(dolt._http)
 
         self.assertEqual(dolt.foo(), random_return)
@@ -216,7 +220,7 @@ class TestOfDolt(unittest.TestCase):
         self.mox.StubOutWithMock(dolt, "_handle_response")
         dolt._handle_response({}, simplejson.dumps({"foo":"bar"}))
 
-        dolt._http.request("/foo", "GET").AndReturn(({}, simplejson.dumps({"foo":"bar"})))
+        dolt._http.request("/foo", "GET", body=None).AndReturn(({}, simplejson.dumps({"foo":"bar"})))
         replay_all(dolt._http, dolt._handle_response)
 
         dolt.foo()
@@ -225,7 +229,7 @@ class TestOfDolt(unittest.TestCase):
 
     def test_has_a_template_for_params(self):
         dolt = testable_dolt()
-        dolt._http.request("/foo\\foo=bar", "GET").AndReturn(({}, simplejson.dumps({"foo": "bar"})))
+        dolt._http.request("/foo\\foo=bar", "GET", body=None).AndReturn(({}, simplejson.dumps({"foo": "bar"})))
         replay_all(dolt._http)
 
         dolt._params_template = "\\%s"
