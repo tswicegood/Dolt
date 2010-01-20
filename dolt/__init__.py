@@ -46,3 +46,27 @@ class Dolt(object):
             url += self._params_template % urllib.urlencode(self._params)
         return url
 
+    try:
+        __IPYTHON__
+        def __dir__(self):
+            return [ 
+                '_supported_methods',
+                '_attribute_stack',
+                '_method',
+                '_posts',
+                '_http',
+                '_params',
+                '_api_url',
+                '_url_template',
+                '_stack_collapser',
+                '_params_template',
+                '__init__',
+                '__call__',
+                '_handle_response',
+                '__getattr__',
+                'get_url',
+                '__dir__', 
+        ]
+        _getAttributeNames = trait_names = __dir__
+    except NameError:
+        pass
