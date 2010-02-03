@@ -19,13 +19,14 @@ class Dolt(object):
     def __call__(self, *args, **kwargs):
         self._attribute_stack += [str(a) for a in args]
         self._params = kwargs
-        body = None
-        if self._method == 'POST':
-            body = (self._params_template % urllib.urlencode(self._params))[1:]
-
+        body = self._generate_body()
         response, data = self._http.request(self.get_url(), self._method, body=body)
         self._attribute_stack = []
         return self._handle_response(response, data)
+
+    def _generate_body(self):
+        if self._method == 'POST':
+            return (self._params_template % urllib.urlencode(self._params))[1:]
 
     def _handle_response(self, response, data):
         return simplejson.loads(data)
