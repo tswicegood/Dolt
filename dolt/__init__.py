@@ -26,7 +26,10 @@ class Dolt(object):
 
     def _generate_body(self):
         if self._method == 'POST':
-            return (self._params_template % urllib.urlencode(self._params))[1:]
+            internal_params = self._params.copy()
+            if 'GET' in internal_params:
+                del internal_params['GET']
+            return (self._params_template % urllib.urlencode(internal_params))[1:]
 
     def _handle_response(self, response, data):
         return simplejson.loads(data)
@@ -43,8 +46,14 @@ class Dolt(object):
             "domain": self._api_url,
             "generated_url" : self._stack_collapser(self._attribute_stack),
         }
-        if len(self._params) and self._method != 'POST':
-            url += self._params_template % urllib.urlencode(self._params)
+        if len(self._params):
+            internal_params = self._params.copy()
+            if self._method == 'POST':
+                if "GET" not in internal_params:
+                    return url
+                internal_params = internal_params['GET']
+            url += self._params_template % urllib.urlencode(internal_params)
+
         return url
 
     try:

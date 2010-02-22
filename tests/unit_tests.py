@@ -237,6 +237,14 @@ class TestOfDolt(unittest.TestCase):
 
         verify_all(dolt._http)
 
+    def test_can_handle_get_params_on_post(self):
+        dolt = testable_dolt()
+        dolt._http.request('/foo?foo=bar', 'POST', body='').AndReturn(({}, simplejson.dumps({"foo":"bar"})))
+        replay_all(dolt._http)
+
+        dolt.foo.POST(GET={"foo": "bar"})
+        verify_all(dolt._http)
+
 
 
 if __name__ == '__main__':
