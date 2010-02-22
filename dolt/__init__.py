@@ -34,7 +34,7 @@ class Dolt(object):
     def __getattr__(self, name):
         if name in self._supported_methods:
             self._method = name
-        elif not name.endswith('()'):
+        elif not name.endswith(')'):
             self._attribute_stack.append(name)
         return self
 
