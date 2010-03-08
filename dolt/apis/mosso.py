@@ -61,6 +61,8 @@ class MossoServers(Dolt):
             values = {}
             if should_contain_values():
                 values = {'server': self._params}
+            elif self._params:
+                values = self._params
             return simplejson.dumps(values)
 
     def _handle_response(self, response, data):
