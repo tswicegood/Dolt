@@ -58,6 +58,7 @@ class MossoServers(Dolt):
                     pass
             return False
         if self._method in ('POST', 'PUT'):
+            values = {}
             if should_contain_values():
                 values = {'server': self._params}
             return simplejson.dumps(values)
