@@ -1,5 +1,8 @@
 import httplib2
-import simplejson
+try:
+    import json as simplejson
+except ImportError:
+    import simplejson
 import urllib
 
 class Dolt(object):
