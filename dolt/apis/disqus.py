@@ -5,5 +5,6 @@ class Disqus(Dolt):
         super(Disqus, self).__init__(*args, **kwargs)
         self._api_url = "http://disqus.com"
         self._url_template = "%(domain)s/api/%(generated_url)s/?user_api_key=" + user_api_key + "&version=" + version
+        self._params_template = "&%s"
 
 
