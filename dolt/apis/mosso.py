@@ -1,7 +1,10 @@
 from dolt import Dolt
 import datetime
 import httplib2
-import simplejson
+try:
+    import json as simplejson
+except ImportError:
+    import simplejson
 
 MOSSO_AUTH_URL = "https://auth.api.rackspacecloud.com"
 
