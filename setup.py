@@ -26,7 +26,7 @@ for dirpath, dirnames, filenames in os.walk('dolt'):
 
 setup(
     name='Dolt',
-    version='0.2.2', # TODO: move this into Dolt.get_version()
+    version='0.3', # TODO: move this into Dolt.get_version()
     description='A dumb little wrapper around RESTful interfaces',
     author='Travis Swicegood',
     author_email='development@domain51.com',
@@ -37,8 +37,7 @@ setup(
         'Development Status :: 3 - Alpha',
         'Environment :: Web Environment',
         'Intended Audience :: Developers',
-        'License :: OSI Approved :: Common Development and Distribution License (CDDL)',
-        'License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)'
+        'License :: OSI Approved :: BSD License',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
         'Topic :: Software Development :: Libraries :: Python Modules',
