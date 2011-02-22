@@ -76,6 +76,55 @@ which allows you to pass in an Http object with credentials.  For example:
     some_api = Dolt(http=http)
 
 
+Using dictionary-style lookups
+------------------------------
+Not all sections of a path can be represented directly as part of a string.
+You can use a dict-like syntax to add segments to the URL.  For example, you
+can use the following:
+
+    from dolt.apis.couchdb import CouchDB
+    couch = CouchDB("awesome")
+    couch["_design/posts"]["_list/all"]()
+
+That is equivalent to:
+
+    couch._design.posts._list.all()
+
+
+Included APIs
+-------------
+Dolt's primary purpose is to make it easy to wrap other APIs, but there are a
+few extras that are included as part of the distribution.
+
+In alphabetical order:
+
+* bit.ly
+* CouchDB
+* Disqus
+* GitHub
+* Mosso/Rackspace Cloud
+* Statsmix
+* Twitter
+
+
+Contributing
+------------
+All development happens on [GitHub][main].  Follow these simple steps to get
+your code added:
+
+* Create something awesome -- make the code better, add a new API, whatever
+  (this is the hardest part).
+* [Fork][] Dolt
+* Create a topic branch to house your changes
+* Get all of your commits in the new topic branch
+* Submit a [pull request][].
+
+### Optional Steps
+* Offer to buy me a beer. :-)
+* *Or* Make sure your pull request contains all of the relevant unit tests to
+  verify your code with.
+
+
 License
 -------
 As of v0.3, this work is licensed under the [BSD][].
@@ -85,16 +134,12 @@ how it effects your use, please consult a professional lawyer, not some random
 README file.
 
 
-Want to help?
--------------
-This is open source, so feel free to grab any of these tasks and contribute:
-
-* Abstract away the simplejson.loads() call so you can replace it with your own functionality
-* Once simplejson depedency is removed, add ability to return RemoteObjects
-
 
 [1]: http://twitter.com/tswicegood
 [python-twitter]: http://code.google.com/p/python-twitter/
 [api-docs]: http://apiwiki.twitter.com/Twitter-API-Documentation
 [httplib2]: http://code.google.com/p/httplib2/
 [BSD]: http://opensource.org/licenses/bsd-license.php
+[main]: http://github.com/tswicegood/Dolt/
+[Fork]: http://help.github.com/forking/
+[pull request]: http://help.github.com/pull-requests/
