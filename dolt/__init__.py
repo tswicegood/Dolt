@@ -37,6 +37,10 @@ class Dolt(object):
     def _handle_response(self, response, data):
         return simplejson.loads(data)
 
+    def __getitem__(self, name):
+        self._attribute_stack.append(name)
+        return self
+
     def __getattr__(self, name):
         if name in self._supported_methods:
             self._method = name

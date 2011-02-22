@@ -245,6 +245,15 @@ class TestOfDolt(unittest.TestCase):
         dolt.foo.POST(GET={"foo": "bar"})
         verify_all(dolt._http)
 
+    def test_can_use_getitem_for_path_parts(self):
+        dolt = testable_dolt()
+        dolt._http.request("/foo/bar.html", 'GET', body=None).AndReturn(({}, "{}"))
+        dolt._http.request("/foo/bar.html", 'GET', body=None).AndReturn(({}, "{}"))
+        replay_all(dolt._http)
+
+        dolt.foo['bar.html']()
+        dolt['foo/bar.html']()
+        verify_all(dolt._http)
 
 
 if __name__ == '__main__':
