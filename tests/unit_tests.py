@@ -2,6 +2,7 @@ import sys, os, random, simplejson
 sys.path[0:0] = os.path.join(os.path.dirname(__file__), '..')
 import unittest, mox
 from dolt import Dolt
+from dolt.apis.couchdb import CouchDB
 from dolt.apis.twitter import Twitter
 from httplib2 import Http
 
@@ -36,6 +37,17 @@ class TestOfTwitterAPI(unittest.TestCase):
         http = "http-%s" % random.randint(1, 10)
         twitter = Twitter(http=http)
         self.assertEqual(twitter._http, http)
+
+class TestOfCouchDBApi(unittest.TestCase):
+    def test_does_not_change_full_url(self):
+        url = "http://%d.example.com:5984/" % random.randint(100, 200)
+        couchdb = CouchDB(url)
+        self.assertEqual(url, couchdb._api_url)
+
+    def test_converts_to_localhost(self):
+        url = "example"
+        couchdb = CouchDB(url)
+        self.assertEqual("http://localhost:5984/example", couchdb._api_url)
 
 class TestOfDolt(unittest.TestCase):
     def setUp(self):
