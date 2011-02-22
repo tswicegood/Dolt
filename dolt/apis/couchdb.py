@@ -7,3 +7,7 @@ class CouchDB(Dolt):
             couch_db = "http://localhost:5984/%s" % couch_db
         self._api_url = couch_db
 
+    def _generate_params(self, params):
+        return self._params_template % \
+            '&'.join(['='.join(a) for a in params.items()])
+

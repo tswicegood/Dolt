@@ -49,6 +49,22 @@ class TestOfCouchDBApi(unittest.TestCase):
         couchdb = CouchDB(url)
         self.assertEqual("http://localhost:5984/example", couchdb._api_url)
 
+    def test_handles_json_in_get_params(self):
+        http = mox.MockObject(Http)
+        http.request(
+            'http://localhost:5984/example/foo?' \
+            'startkey=["foo",0]&endkey=["foo",{}]',
+            'GET', body=None
+        ).AndReturn(({}, "{}"))
+        url = "example"
+        couchdb = CouchDB(url, http=http)
+
+        replay_all(http)
+
+        couchdb.foo(startkey='["foo",0]', endkey='["foo",{}]')
+        verify_all(http)
+
+
 class TestOfDolt(unittest.TestCase):
     def setUp(self):
         self.mox = mox.Mox()
