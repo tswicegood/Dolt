@@ -9,5 +9,5 @@ class CouchDB(Dolt):
 
     def _generate_params(self, params):
         return self._params_template % \
-            '&'.join(['='.join(a) for a in params.items()])
+            '&'.join(['='.join([str(b) for b in a]) for a in params.items()])
 

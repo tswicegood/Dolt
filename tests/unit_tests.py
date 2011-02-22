@@ -64,6 +64,21 @@ class TestOfCouchDBApi(unittest.TestCase):
         couchdb.foo(startkey='["foo",0]', endkey='["foo",{}]')
         verify_all(http)
 
+    def test_handles_integers_as_well_as_strings(self):
+        http = mox.MockObject(Http)
+        r = random.randint(1, 10)
+        http.request(
+            'http://localhost:5984/example/foo?' \
+            'startkey=["foo",0]&endkey=["foo",{}]&group_level=%d' % r,
+            'GET', body=None
+        ).AndReturn(({}, "{}"))
+        url = "example"
+        couchdb = CouchDB(url, http=http)
+
+        replay_all(http)
+
+        couchdb.foo(startkey='["foo",0]', endkey='["foo",{}]', group_level=r)
+        verify_all(http)
 
 class TestOfDolt(unittest.TestCase):
     def setUp(self):
