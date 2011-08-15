@@ -124,6 +124,13 @@ your code added:
 * *Or* Make sure your pull request contains all of the relevant unit tests to
   verify your code with.
 
+### Running the test suite
+
+* install mox (`pip install mox`);
+* run the tests:
+
+        cd Dolt/tests
+        python unit_tests.py
 
 License
 -------
