@@ -22,10 +22,12 @@ class Dolt(object):
     def __call__(self, *args, **kwargs):
         self._attribute_stack += [str(a) for a in args]
         self._params = kwargs
-        body = self._generate_body()
-        response, data = self._http.request(self.get_url(), self._method, body=body)
-        self._attribute_stack = []
-        return self._handle_response(response, data)
+        try:
+            body = self._generate_body()
+            response, data = self._http.request(self.get_url(), self._method, body=body)
+            return self._handle_response(response, data)
+        finally:
+            self._attribute_stack = []
 
     def _generate_params(self, params):
         return self._params_template % urllib.urlencode(params)
@@ -69,7 +71,7 @@ class Dolt(object):
     try:
         __IPYTHON__
         def __dir__(self):
-            return [ 
+            return [
                 '_supported_methods',
                 '_attribute_stack',
                 '_method',
@@ -85,7 +87,7 @@ class Dolt(object):
                 '_handle_response',
                 '__getattr__',
                 'get_url',
-                '__dir__', 
+                '__dir__',
         ]
         _getAttributeNames = trait_names = __dir__
     except NameError:

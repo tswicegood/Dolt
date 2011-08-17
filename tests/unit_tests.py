@@ -1,5 +1,6 @@
 import sys, os, random, simplejson
-sys.path[0:0] = os.path.join(os.path.dirname(__file__), '..')
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+
 import unittest, mox
 from dolt import Dolt
 from dolt.apis.couchdb import CouchDB
@@ -19,20 +20,20 @@ def verify_all(*args):
 
 def replay_all(*args):
     [mox.Replay(arg) for arg in args]
-    
+
 class TestOfTwitterAPI(unittest.TestCase):
     def test_subclasses_dolt(self):
         twitter = Twitter()
         self.assert_(isinstance(twitter, Dolt))
-    
+
     def test_contains_proper_api_url(self):
         twitter = Twitter()
         self.assertEqual(twitter._api_url, "https://twitter.com")
-    
+
     def test_contains_proper_url_template(self):
         twitter = Twitter()
         self.assertEqual(twitter._url_template, '%(domain)s/%(generated_url)s.json')
-        
+
     def test_http_can_be_passed_in(self):
         http = "http-%s" % random.randint(1, 10)
         twitter = Twitter(http=http)
@@ -297,6 +298,20 @@ class TestOfDolt(unittest.TestCase):
         dolt.foo['bar.html']()
         dolt['foo/bar.html']()
         verify_all(dolt._http)
+
+    def test_handle_getitem_exceptions(self):
+        dolt = testable_dolt()
+        dolt._http.request("/foo", "GET", body=None).AndReturn(({}, simplejson.dumps({"foo":"bar"})))
+        replay_all(dolt._http)
+
+        try:
+            dolt.foo[123]()
+            raise AssertionError("Exception is not raised")
+        except TypeError:
+            pass
+
+        # second call shouldn't raise an exception
+        self.assertEqual(dolt.foo()['foo'], 'bar')
 
 
 if __name__ == '__main__':
