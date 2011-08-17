@@ -126,7 +126,10 @@ your code added:
 
 ### Running the test suite
 
-* install mox (`pip install mox`);
+* Install the `requirements/development.txt` file:
+
+      pip install -r requirements/development.txt
+
 * run the tests:
 
       cd Dolt/tests
