@@ -129,8 +129,8 @@ your code added:
 * install mox (`pip install mox`);
 * run the tests:
 
-        cd Dolt/tests
-        python unit_tests.py
+      cd Dolt/tests
+      python unit_tests.py
 
 License
 -------
