@@ -47,7 +47,7 @@ API:
 Now the Dolt version:
 
     twitter = Twitter()
-    twitter.statuses.update.POST(status="Hello from Dolt!")
+    twitter.statuses.update.with_body(status="Hello from Dolt!").POST()
 
 Notice that all you need to add to it is the method you want to call.  If
 you're feeling very Pythonic and want to be explicit in every call, you can add
@@ -59,10 +59,26 @@ be in all uppercase.  For example, this works just the same as the previous
 code:
 
     twitter = Twitter()
-    twitter.POST.statuses.update(status="Hello from Dolt!")
+    twitter.POST.with_body(status="Hello from Dolt!").statuses.update()
 
 This works for other HTTP methods as well, such as `PUT`, `DELETE`, and `HEAD`.
 
+JSON Handling
+-------------
+Dolt will automatically decode JSON if the response uses one of the JSON
+content-types and return a dict.
+
+Dolt can also send JSON:
+
+    twitter = Twitter()
+    twitter.statuses.update.with_json(status="Hello from Dolt!").POST()
+
+Sending Headers
+---------------
+Dolt can send headers with the request:
+
+    api = Dolt()
+    api.foo.with_headers(Accept='text/html').GET()
 
 Handling authentication
 -----------------------
@@ -75,6 +91,11 @@ which allows you to pass in an Http object with credentials.  For example:
     http.add_credentials("some_user", "secret")
     some_api = Dolt(http=http)
 
+You can also use the `add_basic_auth` helper:
+
+    from dolt.helpers import add_basic_auth
+    some_api = Dolt()
+    some_api = add_basic_auth(some_api, username, password)
 
 Using dictionary-style lookups
 ------------------------------
@@ -90,6 +111,28 @@ That is equivalent to:
 
     couch._design.posts._list.all()
 
+Re-using requests
+-----------------
+When chainging attributes or using `with_*` functions, Dolt returns a clone of
+the current state. This allows you to safely re-use Dolt requests for batch
+processing.
+
+    http = Http()
+    http.add_credentials("some_user", "secret")
+    some_api = Dolt(http=http)
+
+    update = some_api.collection.with_params(api_key=API_KEY).PUT
+    update.with_json(name='Foo')(id=123)
+    update.with_json(name='Bar')(id=345)
+
+The `Http` connection is re-used for each request along with the path parts 
+and params.
+
+    item = some_api.admin.item.with_params(api_key=API_KEY)
+    item[uid1].DELETE()
+    # DELETE /admin/item/<uid1>?api_key=<API_KEY>
+    item[uid2].comments.DELETE()
+    # DELETE /admin/item/<uid2>/comments?api_key=<API_KEY>
 
 Included APIs
 -------------

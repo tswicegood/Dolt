@@ -33,6 +33,7 @@ setup(
     url='http://github.com/tswicegood/Dolt/',
     packages=packages,
     package_data={'dolt': data_files},
+    install_requires=['httplib2'],
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Environment :: Web Environment',
