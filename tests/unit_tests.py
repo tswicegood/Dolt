@@ -1,11 +1,22 @@
-import sys, os, random, simplejson
+import sys, os, random, urllib
+
+try:
+    import json
+except ImportError:
+    import simplejson as json
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 import unittest, mox
 from dolt import Dolt
+from dolt.helpers import add_basic_auth
 from dolt.apis.couchdb import CouchDB
 from dolt.apis.twitter import Twitter
 from httplib2 import Http
+
+JSON_HEADERS = {
+    'content-type': 'application/json'
+}
 
 def random_attribute():
     return "some_random_" + str(random.randint(1, 10))
@@ -14,6 +25,9 @@ def testable_dolt():
     http = mox.MockObject(Http)
     dolt = Dolt(http=http)
     return dolt
+
+def dolt_request(dolt, url, method='GET', body=None, headers={}, response_headers=JSON_HEADERS, response_body='{}'):
+    return dolt._http.request(url, method, body=body, headers=headers).AndReturn((response_headers, response_body))
 
 def verify_all(*args):
     [mox.Verify(arg) for arg in args]
@@ -55,8 +69,8 @@ class TestOfCouchDBApi(unittest.TestCase):
         http.request(
             'http://localhost:5984/example/foo?' \
             'startkey=["foo",0]&endkey=["foo",{}]',
-            'GET', body=None
-        ).AndReturn(({}, "{}"))
+            'GET', body=None, headers={}
+        ).AndReturn((JSON_HEADERS, "{}"))
         url = "example"
         couchdb = CouchDB(url, http=http)
 
@@ -71,8 +85,8 @@ class TestOfCouchDBApi(unittest.TestCase):
         http.request(
             'http://localhost:5984/example/foo?' \
             'startkey=["foo",0]&endkey=["foo",{}]&group_level=%d' % r,
-            'GET', body=None
-        ).AndReturn(({}, "{}"))
+            'GET', body=None, headers={}
+        ).AndReturn((JSON_HEADERS, "{}"))
         url = "example"
         couchdb = CouchDB(url, http=http)
 
@@ -85,17 +99,18 @@ class TestOfDolt(unittest.TestCase):
     def setUp(self):
         self.mox = mox.Mox()
 
-    def test_attributes_return_main_object(self):
+    def test_attributes_return_main_object_clone(self):
         dolt = testable_dolt()
 
         attr = random_attribute()
-        self.assertEqual(dolt, getattr(dolt, attr))
+        self.assertNotEqual(dolt, getattr(dolt, attr))
+        self.assertEqual(dolt.__class__, getattr(dolt, attr).__class__)
 
     def test_get_url_returns_current_attrs(self):
         dolt = testable_dolt()
         attr = random_attribute()
         expected_url = "/%s/%s" % (attr, attr)
-        dolt._http.request(expected_url, "GET", body=None).AndReturn(({}, "{}"))
+        dolt_request(dolt, expected_url, "GET")
         replay_all(dolt._http)
 
         getattr(getattr(dolt, attr), attr)()
@@ -105,7 +120,7 @@ class TestOfDolt(unittest.TestCase):
         random_url = "http://api.%s.com" % random_attribute()
         dolt = testable_dolt()
         dolt._api_url = random_url
-        dolt._http.request("%s/foo" % random_url, "GET", body=None).AndReturn(({}, "{}"))
+        dolt_request(dolt, "%s/foo" % random_url, "GET")
         replay_all(dolt._http)
         dolt.foo()
         verify_all(dolt._http)
@@ -113,7 +128,7 @@ class TestOfDolt(unittest.TestCase):
     def test_uses_template_for_formatting_url(self):
         random_protocol = "http-%d" % random.randint(1, 10)
         dolt = testable_dolt()
-        dolt._http.request("%s://example.com/foo" % random_protocol, "GET", body=None).AndReturn(({}, "{}"))
+        dolt_request(dolt, "%s://example.com/foo" % random_protocol, "GET")
 
         dolt._url_template = "%s://example.com/%%(generated_url)s" % random_protocol
         replay_all(dolt._http)
@@ -126,7 +141,7 @@ class TestOfDolt(unittest.TestCase):
         random_value = random.randint(1, 10)
         random_value2 = random.randint(1, 10)
         dolt = testable_dolt()
-        dolt._http.request("/foo/%d/%d" % (random_value, random_value2), "GET", body=None).AndReturn(({}, "{}"))
+        dolt_request(dolt, "/foo/%d/%d" % (random_value, random_value2), "GET")
         replay_all(dolt._http)
 
         dolt.foo(random_value, random_value2)
@@ -137,7 +152,7 @@ class TestOfDolt(unittest.TestCase):
         random_value = random.randint(1, 10)
         random_value2 = random.randint(1, 10)
         dolt = testable_dolt()
-        dolt._http.request("/foo?a=%d&b=%d" % (random_value, random_value2), "GET", body=None).AndReturn(({}, "{}"))
+        dolt_request(dolt, "/foo?a=%d&b=%d" % (random_value, random_value2), "GET")
         replay_all(dolt._http)
 
         dolt.foo(a=random_value, b=random_value2)
@@ -145,8 +160,8 @@ class TestOfDolt(unittest.TestCase):
 
     def test_urls_reset_after_final_call(self):
         dolt = testable_dolt()
-        dolt._http.request("/foo", "GET", body=None).AndReturn(({}, "{}"))
-        dolt._http.request("/bar", "GET", body=None).AndReturn(({}, "{}"))
+        dolt_request(dolt, "/foo", "GET")
+        dolt_request(dolt, "/bar", "GET")
         replay_all(dolt._http)
 
         dolt.foo()
@@ -157,14 +172,15 @@ class TestOfDolt(unittest.TestCase):
     def test_params_donot_carry_over_between_executions(self):
         one = random.randint(1, 10)
         two = random.randint(11, 20)
+        three = random.randint(21, 30)
 
         dolt = testable_dolt()
-        dolt._http.request("/foo?a=%d&b=%d" % (one, two), "GET", body=None).AndReturn(({}, "{}"))
-        dolt._http.request("/foo?a=%d&b=%d" % (two, one), "GET", body=None).AndReturn(({}, "{}"))
+        dolt_request(dolt, "/foo?a=%d&c=%d&b=%d" % (one, three, two), "GET")
+        dolt_request(dolt, "/foo?a=%d&b=%d" % (two, one), "GET")
 
         replay_all(dolt._http)
 
-        dolt.foo(a=one, b=two)
+        dolt.foo(a=one, b=two, c=three)
         dolt.foo(a=two, b=one)
 
         verify_all(dolt._http)
@@ -172,43 +188,33 @@ class TestOfDolt(unittest.TestCase):
     def test_request_method_based_on_call(self):
         random_url = "posted-call-%d" % random.randint(1, 10)
         dolt = testable_dolt()
-        dolt._http.request("/%s" % random_url, "POST", body='').AndReturn(({}, "{}"))
+        dolt_request(dolt, "/%s" % random_url, "POST", body='')
         replay_all(dolt._http)
 
-        getattr(dolt, random_url).POST()
+        getattr(dolt, random_url).with_body('').POST()
 
         verify_all(dolt._http)
 
     def test_request_methods_are_all_uppercase(self):
         dolt = testable_dolt()
-        dolt._http.request("/foo/post", "GET", body=None).AndReturn(({}, "{}"))
+        dolt_request(dolt, "/foo/post", "GET")
         replay_all(dolt._http)
 
         dolt.foo.post()
         verify_all(dolt._http)
 
-    def test_supports_put_method(self):
+    def test_supports_all_methods(self):
         dolt = testable_dolt()
-        dolt._http.request("/foo", "PUT", body=None).AndReturn(({}, "{}"))
+
+        methods = ("GET", "POST", "PUT", "HEAD", "DELETE", "OPTIONS")
+        for method in methods:
+            dolt_request(dolt, "/foo", method)
+
         replay_all(dolt._http)
 
-        dolt.foo.PUT()
-        verify_all(dolt._http)
+        for method in methods:
+            getattr(dolt.foo, method)()
 
-    def test_supports_head_method(self):
-        dolt = testable_dolt()
-        dolt._http.request("/foo", "HEAD", body=None).AndReturn(({}, "{}"))
-        replay_all(dolt._http)
-
-        dolt.foo.HEAD()
-        verify_all(dolt._http)
-
-    def test_supports_delete_method(self):
-        dolt = testable_dolt()
-        dolt._http.request("/foo", "DELETE", body=None).AndReturn(({}, "{}"))
-        replay_all(dolt._http)
-
-        dolt.foo.DELETE()
         verify_all(dolt._http)
 
     def test_supports_various_methods_as_attributes_as_well(self):
@@ -220,11 +226,11 @@ class TestOfDolt(unittest.TestCase):
                    ("DELETE", {"body": None}),
                    ("HEAD", {"body": None}),)
         for args in methods:
-            dolt._http.request("/foo", args[0], **args[1] ).AndReturn(({}, "{}"))
+            dolt_request(dolt, "/foo", args[0], **args[1] )
         replay_all(dolt._http)
 
-        for args in methods:
-            getattr(dolt, args[0]).foo()
+        for method, args in methods:
+            getattr(dolt, method).with_body(args['body']).foo()
 
         verify_all(dolt._http)
 
@@ -235,7 +241,7 @@ class TestOfDolt(unittest.TestCase):
     def test_returns_parsed_json_response_from_request(self):
         dolt = testable_dolt()
         random_return = {"random": random.randint(1, 10)}
-        dolt._http.request("/foo", "GET", body=None).AndReturn(({}, simplejson.dumps(random_return)))
+        dolt_request(dolt, "/foo", "GET", response_body=json.dumps(random_return))
         replay_all(dolt._http)
 
         self.assertEqual(dolt.foo(), random_return)
@@ -262,9 +268,9 @@ class TestOfDolt(unittest.TestCase):
     def test_returns_selfs_handle_response_after_call(self):
         dolt = testable_dolt()
         self.mox.StubOutWithMock(dolt, "_handle_response")
-        dolt._handle_response({}, simplejson.dumps({"foo":"bar"}))
+        dolt._handle_response(JSON_HEADERS, json.dumps({"foo":"bar"}))
 
-        dolt._http.request("/foo", "GET", body=None).AndReturn(({}, simplejson.dumps({"foo":"bar"})))
+        dolt_request(dolt, "/foo", "GET", response_body=json.dumps({"foo":"bar"}))
         replay_all(dolt._http, dolt._handle_response)
 
         dolt.foo()
@@ -273,7 +279,7 @@ class TestOfDolt(unittest.TestCase):
 
     def test_has_a_template_for_params(self):
         dolt = testable_dolt()
-        dolt._http.request("/foo\\foo=bar", "GET", body=None).AndReturn(({}, simplejson.dumps({"foo": "bar"})))
+        dolt_request(dolt, "/foo\\foo=bar", "GET", response_body=json.dumps({"foo": "bar"}))
         replay_all(dolt._http)
 
         dolt._params_template = "\\%s"
@@ -283,16 +289,16 @@ class TestOfDolt(unittest.TestCase):
 
     def test_can_handle_get_params_on_post(self):
         dolt = testable_dolt()
-        dolt._http.request('/foo?foo=bar', 'POST', body='').AndReturn(({}, simplejson.dumps({"foo":"bar"})))
+        dolt_request(dolt, '/foo?foo=bar', 'POST', body='', response_body=json.dumps({"foo":"bar"}))
         replay_all(dolt._http)
 
-        dolt.foo.POST(GET={"foo": "bar"})
+        dolt.foo.with_body('').POST(foo="bar")
         verify_all(dolt._http)
 
     def test_can_use_getitem_for_path_parts(self):
         dolt = testable_dolt()
-        dolt._http.request("/foo/bar.html", 'GET', body=None).AndReturn(({}, "{}"))
-        dolt._http.request("/foo/bar.html", 'GET', body=None).AndReturn(({}, "{}"))
+        dolt_request(dolt, "/foo/bar.html", 'GET')
+        dolt_request(dolt, "/foo/bar.html", 'GET')
         replay_all(dolt._http)
 
         dolt.foo['bar.html']()
@@ -301,7 +307,7 @@ class TestOfDolt(unittest.TestCase):
 
     def test_handle_getitem_exceptions(self):
         dolt = testable_dolt()
-        dolt._http.request("/foo", "GET", body=None).AndReturn(({}, simplejson.dumps({"foo":"bar"})))
+        dolt_request(dolt, "/foo", "GET", response_body=json.dumps({"foo":"bar"}))
         replay_all(dolt._http)
 
         try:
@@ -313,6 +319,100 @@ class TestOfDolt(unittest.TestCase):
         # second call shouldn't raise an exception
         self.assertEqual(dolt.foo()['foo'], 'bar')
 
+    def test_can_reuse_dolt(self):
+        """
+        Ensure that repeated calls to dolt does not stack up the URL paths
+        """
+        dolt = testable_dolt()
+        self.assertEqual(dolt.test.get_url(), '/test')
+        self.assertEqual(dolt.foo.get_url(), '/foo')
+        self.assertEqual(dolt.foo.bar.get_url(), '/foo/bar')
+
+    def test_with_body_on_post(self):
+        dolt = testable_dolt()
+
+        body_data = {"foo":"bar"}
+        body = urllib.urlencode(body_data)
+
+        dolt_request(dolt, '/foo', 'POST', body=body, response_body='')
+        dolt_request(dolt, '/foo', 'POST', body=body, response_body='')
+        dolt_request(dolt, '/foo', 'POST', body=body, response_body='')
+        replay_all(dolt._http)
+
+        dolt.foo.with_body(body_data).POST()
+        dolt.foo.with_body(body).POST()
+        dolt.foo.with_body(body_data.items()).POST()
+
+        verify_all(dolt._http)
+
+    def test_with_json_on_post(self):
+        dolt = testable_dolt()
+
+        body_data = {"foo":"bar"}
+        body = json.dumps(body_data)
+        body2 = json.dumps(dict(foo='bar', baz='123'))
+        
+        json_headers = {'Content-Type': 'application/json', 'Accept': 'application/json'}
+
+        dolt_request(dolt, '/foo', 'POST', body=body,  headers=json_headers, response_body='')
+        dolt_request(dolt, '/foo', 'POST', body=body,  headers=json_headers, response_body='')
+        dolt_request(dolt, '/foo', 'POST', body=body2, headers=json_headers, response_body='')
+        replay_all(dolt._http)
+
+        dolt.foo.with_json(body_data).POST()
+        dolt.foo.with_json(body).POST()
+        dolt.foo.with_json(body_data, baz='123').POST()
+
+        verify_all(dolt._http)        
+
+    def test_get_url_with_args(self):
+        dolt = testable_dolt()
+
+        tests = [
+            (dolt.foo.get_url(), '/foo'),
+            (dolt.foo.get_url(foo=1), '/foo?foo=1'),
+            (dolt.foo.get_url('bar', foo=2, baz='x'), '/foo/bar?foo=2&baz=x'),
+            (dolt.foo.bam.get_url('bar', 'bingo', foo=2, baz='x'), '/foo/bam/bar/bingo?foo=2&baz=x'),
+        ]
+
+        for test, expected in tests:
+            self.assertEqual(test, expected)
+
+    def test_with_body_with_params(self):
+        dolt = testable_dolt()        
+        self.assertEqual(dolt.with_body(dict(key='val'))._body, 'key=val')
+        self.assertEqual(dolt.with_body(foo='bar')._body, 'foo=bar')
+        self.assertEqual(dolt.with_body(dict(key='val'), foo='bar')._body, 'foo=bar&key=val')
+
+        try:
+            dolt.with_body('str', foo='bar')
+            raise AssertionError("Exception is not raised")
+        except ValueError:
+            pass
+
+    def test_with_headers(self):
+        dolt = testable_dolt()
+
+        headers = {
+            'Content-Type': 'text/plain',
+            'Accept': 'foo/bar'
+        }
+
+        dolt_request(dolt, "/foo/bar", 'GET', body=None, headers=headers)
+        dolt_request(dolt, "/foo/bar", 'GET', body=None, headers=headers)
+        replay_all(dolt._http)
+
+        dolt.foo.bar.with_headers(headers).GET()
+        dolt.foo.bar.with_headers(**headers).GET()
+        
+        verify_all(dolt._http)
+        
+    def test_basic_auth_mixin(self):
+        dolt = testable_dolt()
+        dolt = add_basic_auth(dolt, 'myname', 'mypass')
+
+        self.assertTrue('Authorization' in dolt._headers)
+        self.assertTrue(dolt._headers['Authorization'].startswith('Basic '))
 
 if __name__ == '__main__':
     unittest.main()
