@@ -11,7 +11,6 @@ class Dolt(object):
         self._supported_methods = ("GET", "POST", "PUT", "HEAD", "DELETE",)
         self._attribute_stack = []
         self._method = "GET"
-        self._posts = []
         self._http = http or httplib2.Http()
         self._params = {}
         self._api_url = ""
@@ -75,7 +74,6 @@ class Dolt(object):
                 '_supported_methods',
                 '_attribute_stack',
                 '_method',
-                '_posts',
                 '_http',
                 '_params',
                 '_api_url',
