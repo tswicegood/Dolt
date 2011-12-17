@@ -57,7 +57,9 @@ class Dolt(object):
         Deserializes JSON if the content-type matches, otherwise returns the response
         body as is.
         """
-        if data and response.get('content-type') in (
+        # Content-Type headers can include additional parameters(RFC 1521), so
+        # we split on ; to match against only the type/subtype
+        if data and response.get('content-type', '').split(';')[0] in (
             'application/json', 
             'application/x-javascript',
             'text/javascript',
