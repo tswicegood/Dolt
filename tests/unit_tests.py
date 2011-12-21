@@ -414,6 +414,18 @@ class TestOfDolt(unittest.TestCase):
         self.assertTrue('Authorization' in dolt._headers)
         self.assertTrue(dolt._headers['Authorization'].startswith('Basic '))
 
+    def test_returns_parsed_json_with_content_type_params(self):
+        dolt = testable_dolt()
+        response_return = {"foo": 1}
+        response_headers = {'content-type': 'application/json; param=bar'}
+        dolt_request(dolt, "/foo", "GET", response_headers=response_headers,
+                     response_body=json.dumps(response_return))
+        replay_all(dolt._http)
+
+        self.assertEqual(dolt.foo(), response_return)
+
+        verify_all(dolt._http)
+
 if __name__ == '__main__':
     unittest.main()
 
