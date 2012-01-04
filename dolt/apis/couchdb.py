@@ -1,6 +1,6 @@
-from dolt import Dolt
+from dolt import Api
 
-class CouchDB(Dolt):
+class CouchDB(Api):
     def __init__(self, couch_db, *args, **kwargs):
         super(CouchDB, self).__init__(*args, **kwargs)
         if couch_db.find("/") is -1:

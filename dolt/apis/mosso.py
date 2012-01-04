@@ -1,4 +1,4 @@
-from dolt import Dolt
+from dolt import Api
 import datetime
 import httplib2
 try:
@@ -37,7 +37,7 @@ class MossoHttp(object):
         self.auth_token = response['x-auth-token']
 
 
-class MossoServers(Dolt):
+class MossoServers(Api):
     def __init__(self, username, api_key, **kwargs):
         http = MossoHttp(username=username, api_key=api_key)
         self._last_url = None

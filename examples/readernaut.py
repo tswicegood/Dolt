@@ -2,14 +2,12 @@ import getpass
 import os, sys
 sys.path[0:0] = os.path.join(os.path.dirname(__file__), "..")
 
-from dolt import Dolt
+from dolt import Api
 from httplib2 import Http
 
-class Readernaut(Dolt):
-    def __init__(self, *args, **kwargs):
-        super(self.__class__, self).__init__(*args, **kwargs)
-        self._api_url = "http://readernaut.com"
-        self._url_template = '%(domain)s/api/v1/json/%(generated_url)s'
+class Readernaut(Api):
+    _api_url = "http://readernaut.com"
+    _url_template = '%(domain)s/api/v1/json/%(generated_url)s'
 
 
 if __name__ == "__main__":

@@ -28,7 +28,36 @@ def _makes_clone(_func, *args, **kw):
     _func(self, *args[1:], **kw)
     return self
 
-class Dolt(object):
+class Api(object):
+    """
+    A dumb little wrapper around RESTful interfaces.
+
+    Subclass `Dolt` to create specific APIs.
+
+    Example::
+
+        class MyApi(Api):
+            _api_url = 'https://api.example.com'
+            _url_template = '%(domain)s/%(generated_url)s.json'
+
+        api = MyApi()
+        print api.images()
+
+    """
+
+    _api_url = ''
+    """The base url for this API"""
+
+    _url_template = '%(domain)s/%(generated_url)s'
+    """
+    Template used to generate URLs. 
+
+    - `%(domain)s` is the `_api_url`
+    - `%(generated_url)s` is where the URL parts go.
+    """        
+
+    _stack_collapser = '/'.join
+    _params_template = '?%s'
 
     def __init__(self, http=None):
         self._supported_methods = ("GET", "POST", "PUT", "HEAD", "DELETE", "OPTIONS")
@@ -38,10 +67,6 @@ class Dolt(object):
         self._http = http or httplib2.Http()
         self._params = {}
         self._headers = {}
-        self._api_url = ""
-        self._url_template = '%(domain)s/%(generated_url)s'
-        self._stack_collapser = "/".join
-        self._params_template = '?%s'
 
     def __call__(self, *args, **kwargs):
         url = self.get_url(*[str(a) for a in args], **kwargs) 
@@ -100,7 +125,7 @@ class Dolt(object):
     @_makes_clone
     def with_params(self, **params):
         """
-        Add URL query parameters to the request.
+        Add/overwrite URL query parameters to the request.
         """
         self._params.update(params)
         return self
@@ -270,3 +295,17 @@ class Dolt(object):
         _getAttributeNames = trait_names = __dir__
     except NameError:
         pass
+
+class Dolt(Api):        
+    """
+    A dumber little wrapper around RESTful interfaces.
+
+    Example::
+
+        api = Dolt('http://api.example.com')
+        print api.images()
+
+    """
+    def __init__(self, base_url, http=None):
+        super(Dolt, self).__init__(http=http)
+        self._api_url = base_url

@@ -1,4 +1,4 @@
-from dolt import Dolt
+from dolt import Api
 import httplib2
 from xml.dom import minidom
 
@@ -13,7 +13,7 @@ class StatsMixHttp(object):
         kwargs['headers']['X-StatsMix-Token'] = self.api_key
         return self.http.request(*args, **kwargs)
 
-class StatsMix(Dolt):
+class StatsMix(Api):
     def __init__(self, api_key, *args, **kwargs):
         http = StatsMixHttp(api_key, *args, **kwargs)
         kwargs['http'] = http

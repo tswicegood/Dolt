@@ -1,6 +1,6 @@
-from dolt import Dolt
+from dolt import Api
 
-class GitHub(Dolt):
+class GitHub(Api):
     def __init__(self, api_version="v2", *args, **kwargs):
         super(GitHub, self).__init__(*args, **kwargs)
         self._api_url = "https://github.com/api/%s/json" % api_version

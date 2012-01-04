@@ -1,6 +1,8 @@
-from dolt import Dolt
+from dolt import Api
 
-class Bitly(Dolt):
+class Bitly(Api):
+    _api_url = 'http://api.bit.ly'
+
     def __init__(self, http=None, **kwargs):
         super(Bitly, self).__init__(http)
         self._defaults = {
@@ -10,8 +12,6 @@ class Bitly(Dolt):
             'format':'json',
         }
         self._defaults.update(kwargs)
-        self._api_url = 'http://api.bit.ly'
-        self._url_template = '%(domain)s/%(generated_url)s'
 
     def __call__(self, *args, **kwargs):
         updated_kwargs = kwargs

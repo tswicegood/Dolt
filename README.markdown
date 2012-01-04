@@ -63,6 +63,14 @@ code:
 
 This works for other HTTP methods as well, such as `PUT`, `DELETE`, and `HEAD`.
 
+Simple Request
+--------------
+You can use the `Dolt` class directly for simple requests.
+
+    api = Dolt('http://api.example.com')
+    api.user.images()
+    # GET http://api.example.com/user/images
+
 JSON Handling
 -------------
 Dolt will automatically decode JSON if the response uses one of the JSON
@@ -133,6 +141,16 @@ and params.
     # DELETE /admin/item/<uid1>?api_key=<API_KEY>
     item[uid2].comments.DELETE()
     # DELETE /admin/item/<uid2>/comments?api_key=<API_KEY>
+
+Other Useful Methods
+--------------------
+
+* `with_params(**params)` - Add/overwrite URL query parameters to the request
+* `get_url(self, *paths, **params)` - Returns the URL for this request
+
+    * `paths` - Additional URL path parts to add to the request
+    * `params` - Additional query parameters to add to the request
+
 
 Included APIs
 -------------
