@@ -26,7 +26,7 @@ for dirpath, dirnames, filenames in os.walk('dolt'):
 
 setup(
     name='Dolt',
-    version='0.9.0alpha.0', # TODO: move this into Dolt.get_version()
+    version='0.9.0', # TODO: move this into Dolt.get_version()
     description='A dumb little wrapper around RESTful interfaces',
     author='Travis Swicegood',
     author_email='development@domain51.com',
