@@ -1,6 +1,6 @@
-from dolt import Api
+from dolt import Dolt
 
-class Bitly(Api):
+class Bitly(Dolt):
     _api_url = 'http://api.bit.ly'
 
     def __init__(self, http=None, **kwargs):

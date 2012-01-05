@@ -28,7 +28,7 @@ def _makes_clone(_func, *args, **kw):
     _func(self, *args[1:], **kw)
     return self
 
-class Api(object):
+class Dolt(object):
     """
     A dumb little wrapper around RESTful interfaces.
 
@@ -36,7 +36,7 @@ class Api(object):
 
     Example::
 
-        class MyApi(Api):
+        class MyApi(Dolt):
             _api_url = 'https://api.example.com'
             _url_template = '%(domain)s/%(generated_url)s.json'
 
@@ -296,16 +296,16 @@ class Api(object):
     except NameError:
         pass
 
-class Dolt(Api):        
+class Simpleton(Dolt):        
     """
     A dumber little wrapper around RESTful interfaces.
 
     Example::
 
-        api = Dolt('http://api.example.com')
+        api = Simpleton('http://api.example.com')
         print api.images()
 
     """
     def __init__(self, base_url, http=None):
-        super(Dolt, self).__init__(http=http)
+        super(Simpleton, self).__init__(http=http)
         self._api_url = base_url

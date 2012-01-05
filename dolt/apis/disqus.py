@@ -1,6 +1,6 @@
-from dolt import Api
+from dolt import Dolt
 
-class Disqus(Api):
+class Disqus(Dolt):
     _api_url = "http://disqus.com"
     
     def __init__(self, user_api_key, version="1.1", *args, **kwargs):

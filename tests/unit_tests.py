@@ -8,7 +8,7 @@ except ImportError:
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 import unittest, mox
-from dolt import Dolt, Api
+from dolt import Dolt, Simpleton
 from dolt.helpers import add_basic_auth
 from dolt.apis.couchdb import CouchDB
 from dolt.apis.twitter import Twitter
@@ -23,7 +23,7 @@ def random_attribute():
 
 def testable_dolt():
     http = mox.MockObject(Http)
-    dolt = Dolt('', http=http)
+    dolt = Dolt(http=http)
     return dolt
 
 def dolt_request(dolt, url, method='GET', body=None, headers={}, response_headers=JSON_HEADERS, response_body='{}'):
@@ -38,7 +38,7 @@ def replay_all(*args):
 class TestOfTwitterAPI(unittest.TestCase):
     def test_subclasses_dolt(self):
         twitter = Twitter()
-        self.assert_(isinstance(twitter, Api))
+        self.assert_(isinstance(twitter, Dolt))
 
     def test_contains_proper_api_url(self):
         twitter = Twitter()
@@ -235,7 +235,7 @@ class TestOfDolt(unittest.TestCase):
         verify_all(dolt._http)
 
     def test_instanciates_httplib2_object_if_not_provided(self):
-        dolt = Dolt('')
+        dolt = Dolt()
         self.assert_(isinstance(dolt._http, Http))
 
     def test_returns_parsed_json_response_from_request(self):
@@ -250,7 +250,7 @@ class TestOfDolt(unittest.TestCase):
 
     def test_takes_an_http_keyword_arg_and_sets_http_to_it(self):
         random_http = "http-%s" % random.randint(1, 10)
-        dolt = Api(http=random_http)
+        dolt = Dolt(http=random_http)
         self.assertEqual(dolt._http, random_http)
 
     def test_uses_collapse_stack_to_join_string_for_request(self):
@@ -426,9 +426,9 @@ class TestOfDolt(unittest.TestCase):
 
         verify_all(dolt._http)
 
-class TestOfSimpleDolt(unittest.TestCase):
+class TestOfSimpleton(unittest.TestCase):
     def test_base_url(self):
-        dolt = Dolt('http://example.com')
+        dolt = Simpleton('http://example.com')
         self.assertEquals(dolt._api_url, 'http://example.com')
 
 if __name__ == '__main__':

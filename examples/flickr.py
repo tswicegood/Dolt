@@ -1,9 +1,9 @@
 import os, sys
 sys.path[0:0] = os.path.join(os.path.dirname(__file__), ".."),
 
-from dolt import Api
+from dolt import Dolt
 
-class Flickr(Api):
+class Flickr(Dolt):
     def __init__(self, api_key, *args, **kwargs):
         super(self.__class__, self).__init__(*args, **kwargs)
         self._api_key = api_key

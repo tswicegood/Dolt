@@ -65,9 +65,9 @@ This works for other HTTP methods as well, such as `PUT`, `DELETE`, and `HEAD`.
 
 Simple Request
 --------------
-You can use the `Dolt` class directly for simple requests.
+You can use the `Simpleton` class for simple requests.
 
-    api = Dolt('http://api.example.com')
+    api = Simpleton('http://api.example.com')
     api.user.images()
     # GET http://api.example.com/user/images
 
@@ -145,7 +145,7 @@ and params.
 Other Useful Methods
 --------------------
 
-* `with_params(**params)` - Add/overwrite URL query parameters to the request
+* `with_params(**params)` - Add/overwrite URL query parameters
 * `get_url(self, *paths, **params)` - Returns the URL for this request
 
     * `paths` - Additional URL path parts to add to the request

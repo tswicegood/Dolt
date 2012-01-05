@@ -2,10 +2,10 @@ import getpass
 import os, sys
 sys.path[0:0] = os.path.join(os.path.dirname(__file__), "..")
 
-from dolt import Api
+from dolt import Dolt
 from httplib2 import Http
 
-class Readernaut(Api):
+class Readernaut(Dolt):
     _api_url = "http://readernaut.com"
     _url_template = '%(domain)s/api/v1/json/%(generated_url)s'
 
