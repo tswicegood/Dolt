@@ -426,7 +426,7 @@ class TestOfDolt(unittest.TestCase):
 
         verify_all(dolt._http)
 
-class TestOfSimpleton(unittest.TestCase):
+class TestOfSimpleton(TestOfDolt):
     def test_base_url(self):
         dolt = Simpleton('http://example.com')
         self.assertEquals(dolt._api_url, 'http://example.com')
