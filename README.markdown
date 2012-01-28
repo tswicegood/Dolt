@@ -2,6 +2,12 @@ Dolt
 ====
 A dumb little wrapper around RESTful interfaces
 
+## Note about this branch
+This is a backwards incompatible change to move to `requests`.  It's still not
+complete.  See the open [pull request][].
+
+[pull request]: https://github.com/tswicegood/Dolt/pull/13/
+
 What is Dolt?
 -------------
 Dolt is a minimalist wrapper around RESTful interfaces, specifically, JSON
