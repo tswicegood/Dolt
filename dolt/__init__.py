@@ -1,5 +1,5 @@
-import httplib2
 import urllib
+import requests as original_requests
 
 try:
     import json
@@ -59,41 +59,41 @@ class Dolt(object):
     _stack_collapser = '/'.join
     _params_template = '?%s'
 
-    def __init__(self, http=None):
+    def __init__(self, requests=None):
         self._supported_methods = ("GET", "POST", "PUT", "HEAD", "DELETE", "OPTIONS")
         self._attribute_stack = []
         self._method = "GET"
         self._body = None
-        self._http = http or httplib2.Http()
         self._params = {}
         self._headers = {}
+        self._requests = requests or original_requests
 
     def __call__(self, *args, **kwargs):
         url = self.get_url(*[str(a) for a in args], **kwargs) 
 
-        response, data = self._http.request(url, self._method, body=self._body, headers=self._headers)
-        return self._handle_response(response, data)
+        response = getattr(self._requests, self._method.lower())(url, data=self._body, headers=self._headers)
+        return self._handle_response(response)
 
     def _generate_params(self, params):
         return self._params_template % urllib.urlencode(params)
 
-    def _handle_response(self, response, data):
+    def _handle_response(self, response):
         """
         Deserializes JSON if the content-type matches, otherwise returns the response
         body as is.
         """
         # Content-Type headers can include additional parameters(RFC 1521), so
         # we split on ; to match against only the type/subtype
-        if data and response.get('content-type', '').split(';')[0] in (
+        if response.text and response.headers.get('content-type', '').split(';')[0] in (
             'application/json', 
             'application/x-javascript',
             'text/javascript',
             'text/x-javascript',
             'text/x-json'
         ):
-            return json.loads(data)
+            return json.loads(response.text)
         else:
-            return data
+            return response.text
 
     @_makes_clone
     def __getitem__(self, name):
@@ -306,6 +306,6 @@ class Simpleton(Dolt):
         print api.images()
 
     """
-    def __init__(self, base_url, http=None):
-        super(Simpleton, self).__init__(http=http)
+    def __init__(self, base_url, **kwargs):
+        super(Simpleton, self).__init__(**kwargs)
         self._api_url = base_url
