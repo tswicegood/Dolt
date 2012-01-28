@@ -280,21 +280,6 @@ class TestOfDolt(unittest.TestCase):
 
         self.assertEqual(dolt.foo.bar.get_url(), expected_url)
 
-    def test_returns_selfs_handle_response_after_call(self):
-        dolt = testable_dolt()
-        self.mox.StubOutWithMock(dolt, "_handle_response")
-        response = fudge.Fake()
-        response.has_attr(headers=JSON_HEADERS, text=json.dumps({"foo":"bar"}))
-        fudge.clear_calls()
-        dolt._handle_response(response)
-
-        dolt_request(dolt, "/foo", "GET", response_body=json.dumps({"foo":"bar"}))
-        replay_all(dolt._requests, dolt._handle_response)
-
-        dolt.foo()
-
-        verify_all(dolt._requests, dolt._handle_response)
-
     def test_has_a_template_for_params(self):
         dolt = testable_dolt()
         dolt_request(dolt, "/foo\\foo=bar", "GET", response_body=json.dumps({"foo": "bar"}))
