@@ -34,7 +34,7 @@ setup(
     packages=packages,
     package_data={'dolt': data_files},
     install_requires=[
-        "httplib2",
+        "requests==0.10.1",
     ],
     classifiers=[
         'Development Status :: 3 - Alpha',

@@ -1,3 +1,4 @@
 simplejson
 httplib2
 mox
+fudge==1.0.3
